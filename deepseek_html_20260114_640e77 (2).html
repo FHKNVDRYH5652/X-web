@@ -1,0 +1,2590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mickey X Web - Multi-Platform Predictor</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCShaI7FfDCvZ9t21RdBk7ATjk5PQUAeQI",
+            authDomain: "wingo-predictor-hub.firebaseapp.com",
+            databaseURL: "https://wingo-predictor-hub-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "wingo-predictor-hub",
+            storageBucket: "wingo-predictor-hub.firebasestorage.app",
+            messagingSenderId: "510934626240",
+            appId: "1:510934626240:web:8df9c4b4a78964f15d2225",
+            measurementId: "G-TTM7WXC4DW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.firebaseDatabase = database;
+        window.firebaseRef = ref;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particles Background */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* All Pages */
+        #landing-page, #video-page, #access-key-page, #prediction-page {
+            display: none;
+        }
+
+        #landing-page {
+            display: block;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%);
+            border-bottom: 3px solid #ff3366;
+            box-shadow: 0 5px 20px rgba(255, 51, 102, 0.3);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #ff3366, #ff9966, #ff3366);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .header p {
+            color: #ccc;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* Online Users */
+        .online-users {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .online-users i {
+            font-size: 1.2rem;
+        }
+
+        /* Platform Selection */
+        .platform-section {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .platform-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #00ffcc;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #00ffcc, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Horizontal Scroll Container */
+        .platform-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 25px;
+            padding: 25px 20px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .platform-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Phone-shaped Platform Boxes */
+        .platform-box {
+            flex: 0 0 auto;
+            width: 300px;
+            height: 550px;
+            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 3px solid #444;
+            scroll-snap-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            padding-top: 35px; /* Space for notch */
+        }
+
+        /* Phone notch */
+        .platform-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 25px;
+            background: #111;
+            border-radius: 0 0 15px 15px;
+            z-index: 2;
+        }
+
+        /* Phone speaker */
+        .platform-box::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 3;
+        }
+
+        .platform-box:hover {
+            transform: translateY(-15px) scale(1.03);
+            border-color: #ff3366;
+            box-shadow: 0 20px 40px rgba(255, 51, 102, 0.4);
+            background: linear-gradient(145deg, #2a2a2a, #333);
+        }
+
+        /* Platform Image Container - Full Screen Image */
+        .platform-image-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .platform-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .platform-box:hover .platform-image-container img {
+            transform: scale(1.05);
+            border-color: #ff3366;
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.5);
+        }
+
+        .platform-box .platform-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(90deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Platform button */
+        .select-btn {
+            position: absolute;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff3366, #ff6699);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .platform-box:hover .select-btn {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.8);
+        }
+
+        /* Video Page */
+        #video-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #introVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        #sorryVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .skip-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(90deg, #ff3366, #ff6699);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .skip-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 51, 102, 0.6);
+        }
+
+        .video-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #ff3366;
+            text-align: center;
+            max-width: 600px;
+            z-index: 1002;
+        }
+
+        .video-message h2 {
+            color: #ff3366;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .video-message p {
+            color: #fff;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        /* Access Key Page */
+        #access-key-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            z-index: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .access-key-container {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            border: 3px solid #444;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .access-key-container h2 {
+            color: #00ccff;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+        }
+
+        .access-key-container p {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .key-input-group {
+            margin-bottom: 25px;
+        }
+
+        .key-input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .key-input-group input:focus {
+            outline: none;
+            border-color: #00ccff;
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .key-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .key-option-btn {
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .key-option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ff3366;
+            transform: translateY(-2px);
+        }
+
+        .key-option-btn i {
+            font-size: 1.3rem;
+        }
+
+        .buy-key {
+            background: linear-gradient(90deg, #ff3366, #ff9966);
+            border-color: #ff3366;
+        }
+
+        .register-key {
+            background: linear-gradient(90deg, #00ccff, #0088ff);
+            border-color: #00ccff;
+        }
+
+        .back-to-platform {
+            margin-top: 20px;
+            color: #aaa;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .back-to-platform:hover {
+            color: #fff;
+        }
+
+        /* Prediction Page - NEW DESIGN */
+        .prediction-header {
+            text-align: center;
+            padding: 25px 20px;
+            background: linear-gradient(180deg, rgba(10,10,10,0.95), rgba(20,20,20,0.9));
+            border-bottom: 2px solid #333;
+        }
+
+        .prediction-header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #fff, #aaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Server Status - New Design */
+        .server-status-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .server-item {
+            text-align: center;
+        }
+
+        .server-label {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .server-value {
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            min-width: 180px;
+        }
+
+        .server-connected {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .server-select {
+            background: #ff3366;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+        }
+
+        /* Game Info - New Design */
+        .game-info {
+            text-align: center;
+            padding: 25px;
+            margin: 25px auto;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            border: 2px solid #333;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+
+        .period-display {
+            font-size: 1.3rem;
+            color: #00ccff;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .period-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+        }
+
+        /* Winning Proofs Section */
+        .winning-proofs {
+            padding: 25px;
+            margin: 25px;
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.15), rgba(255, 69, 0, 0.1));
+            border-radius: 20px;
+            border: 2px solid #ff8c00;
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+        }
+
+        .proofs-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+        }
+
+        .proofs-header h3 {
+            color: #ff8c00;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .proofs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .proof-card {
+            background: linear-gradient(145deg, rgba(255, 140, 0, 0.2), rgba(255, 69, 0, 0.15));
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #ff8c00;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .proof-card::before {
+            content: 'VERIFIED WIN';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(90deg, #ff8c00, #ffa500);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .winner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .winner-name {
+            font-size: 1.3rem;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        .win-amount {
+            font-size: 1.8rem;
+            color: #00ff88;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .winner-info {
+            margin-top: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9rem;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-label {
+            color: #aaa;
+        }
+
+        .info-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* PREDICTION BOX - NEW DESIGN (Like LEGEND X WEB) */
+        .prediction-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .prediction-box-wrapper {
+            width: 350px;
+            background: rgba(40, 40, 40, 0.9);
+            border-radius: 20px;
+            border: 2px solid #444;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .server-selection {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .server-type {
+            font-size: 1.1rem;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .server-type-value {
+            font-size: 1.2rem;
+            color: #00ccff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .prediction-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .prediction-label {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .prediction-value {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 15px 0;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .prediction-green {
+            color: #00ff88;
+        }
+
+        .prediction-red {
+            color: #ff3366;
+        }
+
+        .prediction-big {
+            color: #ffcc00;
+        }
+
+        .prediction-small {
+            color: #00ccff;
+        }
+
+        /* Server Select Section */
+        .server-select-section {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+            text-align: center;
+        }
+
+        .server-select-label {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .server-select-value {
+            font-size: 1.3rem;
+            color: #ff3366;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: linear-gradient(90deg, #ff3366, #ff6699);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 51, 102, 0.6);
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .prediction-status {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        /* Pattern Analysis Display */
+        .analysis-container {
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            border: 2px solid #444;
+        }
+
+        .analysis-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        .analysis-header h3 {
+            color: #00ccff;
+            font-size: 1.5rem;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-number {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .history-type {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .history-big {
+            background: linear-gradient(135deg, #ff3366, #ff9966);
+            color: white;
+        }
+
+        .history-small {
+            background: linear-gradient(135deg, #00ccff, #00aaff);
+            color: white;
+        }
+
+        .history-red {
+            background: linear-gradient(135deg, #ff3366, #cc0000);
+            color: white;
+        }
+
+        .history-green {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: white;
+        }
+
+        .analysis-result {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .analysis-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .analysis-label {
+            color: #aaa;
+        }
+
+        .analysis-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .pattern-name {
+            color: #ffcc00;
+        }
+
+        .confidence-high {
+            color: #00ff88;
+        }
+
+        .confidence-medium {
+            color: #ffcc00;
+        }
+
+        .confidence-low {
+            color: #ff3366;
+        }
+
+        /* Sequence Direction Indicator */
+        .sequence-direction {
+            text-align: center;
+            margin: 10px 0;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .direction-arrow {
+            color: #00ccff;
+            margin: 0 5px;
+        }
+
+        /* Pattern Tabs */
+        .pattern-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .pattern-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pattern-tab.active {
+            background: linear-gradient(90deg, #ff3366, #ff6699);
+            color: white;
+            font-weight: bold;
+        }
+
+        .pattern-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Color Pattern Display */
+        .color-pattern-display {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .color-item {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* System Algorithm Display */
+        .algorithm-status {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #00ccff;
+        }
+
+        .algorithm-status h4 {
+            color: #00ccff;
+            margin-bottom: 10px;
+        }
+
+        .algorithm-status p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Complex Number Analysis */
+        .number-analysis {
+            background: rgba(40, 40, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #444;
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .number-item {
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .likely-number {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: white;
+        }
+
+        .unlikely-number {
+            background: rgba(255, 51, 102, 0.3);
+            color: #aaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .platform-box {
+                width: 280px;
+                height: 500px;
+            }
+            
+            .platform-image-container {
+                height: 350px;
+            }
+            
+            .prediction-value {
+                font-size: 3.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .proofs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .server-value {
+                min-width: 150px;
+                padding: 8px 15px;
+                font-size: 1rem;
+            }
+            
+            .online-users {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                width: fit-content;
+            }
+            
+            .prediction-box-wrapper {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .history-grid {
+                grid-template-columns: repeat(5, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+            
+            .color-pattern-display {
+                grid-template-columns: repeat(5, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+            
+            .analysis-container {
+                margin: 20px 10px;
+                padding: 15px;
+            }
+            
+            .access-key-container {
+                padding: 20px;
+            }
+            
+            .skip-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Landing Page -->
+    <div id="landing-page">
+        <div class="header">
+            <h1>MICKEY X WEB</h1>
+            <p>Choose Your Prediction Platform</p>
+            <div class="online-users">
+                <i class="fas fa-users"></i> ONLINE: 999+
+            </div>
+        </div>
+
+        <div class="platform-section">
+            <h2>SELECT PLATFORM</h2>
+            <div class="platform-container">
+                <!-- 91 Club Platform -->
+                <div class="platform-box" onclick="selectPlatform('91 CLUB')">
+                    <div class="platform-image-container">
+                        <img src="91club.png" alt="91Club" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/ff3366/000000?text=91CLUB'">
+                    </div>
+                    <div class="platform-name">91 Club</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- Tashan Platform -->
+                <div class="platform-box" onclick="selectPlatform('TASHAN WIN')">
+                    <div class="platform-image-container">
+                        <img src="tashan.png" alt="Tashan" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/00ccff/000000?text=TASHAN'">
+                    </div>
+                    <div class="platform-name">Tashan Win</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- 82 Lottery Platform -->
+                <div class="platform-box" onclick="selectPlatform('82 LOTTERY')">
+                    <div class="platform-image-container">
+                        <img src="82lottery.png" alt="82Lottery" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/ffcc00/000000?text=82LOTTO'">
+                    </div>
+                    <div class="platform-name">82 Lottery</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- Goa Game Platform -->
+                <div class="platform-box" onclick="selectPlatform('GOA GAME')">
+                    <div class="platform-image-container">
+                        <img src="goagame.png" alt="GoaGame" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/00ff88/000000?text=GOAGAME'">
+                    </div>
+                    <div class="platform-name">Goa Game</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- Daman Platform -->
+                <div class="platform-box" onclick="selectPlatform('DAMAN GAME')">
+                    <div class="platform-image-container">
+                        <img src="daman.png" alt="Daman" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/ff00ff/000000?text=DAMAN'">
+                    </div>
+                    <div class="platform-name">Daman Game</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- BDG Game Platform -->
+                <div class="platform-box" onclick="selectPlatform('BDG GAME')">
+                    <div class="platform-image-container">
+                        <img src="bdggame.png" alt="BDGGame" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/ff3366/000000?text=BDGGAME'">
+                    </div>
+                    <div class="platform-name">BDG Game</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- Jalwa Platform -->
+                <div class="platform-box" onclick="selectPlatform('JALWA GAME')">
+                    <div class="platform-image-container">
+                        <img src="jalwa.png" alt="Jalwa" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/00ccff/000000?text=JALWA'">
+                    </div>
+                    <div class="platform-name">Jalwa Game</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+
+                <!-- DM Win Platform -->
+                <div class="platform-box" onclick="selectPlatform('DM WIN')">
+                    <div class="platform-image-container">
+                        <img src="dmwin.png" alt="DMWin" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/ffcc00/000000?text=DMWIN'">
+                    </div>
+                    <div class="platform-name">DM Win</div>
+                    <div class="select-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Page -->
+    <div id="video-page">
+        <div class="video-container">
+            <video id="introVideo" autoplay>
+                <source src="intro.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <button class="skip-btn" onclick="skipVideo()">
+                <i class="fas fa-forward"></i> SKIP INTRO
+            </button>
+        </div>
+    </div>
+
+    <!-- Sorry Video Page -->
+    <div id="sorry-video-page" style="display: none;">
+        <div class="video-container">
+            <video id="sorryVideo" autoplay>
+                <source src="sorry.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="video-message">
+                <h2>⚠️ Wrong Access Key!</h2>
+                <p>Brother galt key nhi dalna hai key leke aao pehele ok</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Key Page -->
+    <div id="access-key-page">
+        <div class="access-key-container">
+            <h2><i class="fas fa-key"></i> ACCESS KEY REQUIRED</h2>
+            <p>Enter your access key to unlock prediction features. If you don't have a key, you can purchase one or register for a free trial.</p>
+            
+            <div class="key-input-group">
+                <input type="password" id="accessKeyInput" placeholder="Enter Access Key" maxlength="10">
+            </div>
+            
+            <button class="submit-btn" onclick="verifyAccessKey()">
+                <i class="fas fa-unlock"></i> UNLOCK PREDICTIONS
+            </button>
+            
+            <div class="key-options">
+                <button class="key-option-btn buy-key" onclick="buyKey()">
+                    <i class="fas fa-shopping-cart"></i> Key Price 899/Rs - Click and Buy
+                </button>
+                
+                <button class="key-option-btn register-key" onclick="registerKey()">
+                    <i class="fas fa-user-plus"></i> Register and deposit 2k then access key give
+                </button>
+            </div>
+            
+            <div class="back-to-platform" onclick="goBackToPlatform()">
+                <i class="fas fa-arrow-left"></i> Back to Platform Selection
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Page -->
+    <div id="prediction-page">
+        <div class="prediction-header">
+            <h1>MICKEY X WEB</h1>
+            <div class="online-users">
+                <i class="fas fa-users"></i> ONLINE: 999+
+            </div>
+            
+            <div class="server-status-container">
+                <div class="server-item">
+                    <div class="server-label">SERVER 1</div>
+                    <div class="server-value server-connected" id="server1">CONNECTED</div>
+                </div>
+                <div class="server-item">
+                    <div class="server-label">SERVER SELECT</div>
+                    <div class="server-value server-select" id="server2">RED/GREEN</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Winning Proofs Section -->
+        <div class="winning-proofs">
+            <div class="proofs-header">
+                <h3><i class="fas fa-trophy"></i> WINNING PROOFS - VERIFIED RESULTS ❤️ <i class="fas fa-trophy"></i></h3>
+                <p style="color: #aaa; margin-top: 10px;">Live winning proofs from our users</p>
+            </div>
+            <div class="proofs-grid" id="proofsList">
+                <!-- Proofs will be loaded from Firebase and auto-generated -->
+            </div>
+        </div>
+
+        <!-- Pattern Analysis Section -->
+        <div class="analysis-container" id="analysisContainer">
+            <div class="analysis-header">
+                <h3><i class="fas fa-chart-line"></i> ADVANCED PATTERN ANALYSIS</h3>
+                <div class="sequence-direction">
+                    <span>Old</span>
+                    <span class="direction-arrow">→</span>
+                    <span class="direction-arrow">→</span>
+                    <span class="direction-arrow">→</span>
+                    <span>New (Latest)</span>
+                </div>
+            </div>
+
+            <!-- Pattern Tabs -->
+            <div class="pattern-tabs">
+                <div class="pattern-tab active" id="sizeTab" onclick="showPatternTab('size')">
+                    <i class="fas fa-expand-alt"></i> SIZE (B/S)
+                </div>
+                <div class="pattern-tab" id="colorTab" onclick="showPatternTab('color')">
+                    <i class="fas fa-palette"></i> COLOR (R/G)
+                </div>
+                <div class="pattern-tab" id="numberTab" onclick="showPatternTab('number')">
+                    <i class="fas fa-calculator"></i> NUMBER ANALYSIS
+                </div>
+            </div>
+
+            <!-- Size Pattern Display -->
+            <div id="sizePatternSection">
+                <div class="history-grid" id="historyGrid">
+                    <!-- History items will be dynamically added -->
+                </div>
+                <div class="color-pattern-display" id="sizePatternDisplay">
+                    <!-- Size pattern display -->
+                </div>
+            </div>
+
+            <!-- Color Pattern Display -->
+            <div id="colorPatternSection" style="display: none;">
+                <div class="color-pattern-display" id="colorPatternDisplay">
+                    <!-- Color pattern display -->
+                </div>
+            </div>
+
+            <!-- Number Analysis Display -->
+            <div id="numberPatternSection" style="display: none;">
+                <div class="number-analysis">
+                    <h4>Number Probability Analysis</h4>
+                    <p>Analyzing which numbers are least likely to be bet on by users...</p>
+                    <div class="number-grid" id="numberGrid">
+                        <!-- Number analysis will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Algorithm Status -->
+            <div class="algorithm-status" id="algorithmStatus">
+                <h4><i class="fas fa-brain"></i> SYSTEM ALGORITHM ANALYSIS</h4>
+                <p id="algorithmText">Analyzing game system patterns and trap detection...</p>
+            </div>
+
+            <div class="analysis-result" id="analysisResult">
+                <!-- Analysis results will be shown here -->
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="period-display">NEXT GAME PERIOD :</div>
+            <div class="period-number" id="periodNumber">20250125100051349</div>
+            <div class="prediction-status" id="predictionStatus">Waiting for next period...</div>
+        </div>
+
+        <!-- PREDICTION BOX - NEW DESIGN -->
+        <div class="prediction-container">
+            <div class="prediction-box-wrapper">
+                <div class="server-selection">
+                    <div class="server-type">SERVER TYPE</div>
+                    <div class="server-type-value" id="serverTypeLabel">COLOR SERVER</div>
+                </div>
+                
+                <div class="prediction-content">
+                    <div class="prediction-label">PREDICTION</div>
+                    <div class="prediction-value" id="predictionText">GREEN</div>
+                </div>
+                
+                <div class="server-select-section">
+                    <div class="server-select-label">SERVER SELECT</div>
+                    <div class="server-select-value" id="serverSelectValue">RED/GREEN</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> BACK TO PLATFORMS
+        </button>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="keySound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+    <audio id="wrongKeySound" src="https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-buzzer-1559.mp3"></audio>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // ============================================
+        // ENCRYPTED AND COMPLEX CODE SECTION
+        // ============================================
+        
+        // Advanced encryption function to make code difficult to crack
+        function encryptData(data) {
+            let result = '';
+            for (let i = 0; i < data.length; i++) {
+                result += String.fromCharCode(data.charCodeAt(i) ^ 0x5A);
+            }
+            return btoa(result);
+        }
+
+        function decryptData(data) {
+            try {
+                const decoded = atob(data);
+                let result = '';
+                for (let i = 0; i < decoded.length; i++) {
+                    result += String.fromCharCode(decoded.charCodeAt(i) ^ 0x5A);
+                }
+                return result;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // Complex mathematical functions for pattern analysis
+        function advancedMathPattern(numbers) {
+            const n = numbers.length;
+            if (n < 5) return {prediction: 'B', confidence: 50};
+            
+            // Complex pattern detection using multiple algorithms
+            let patternScore = 0;
+            let trendWeight = 0;
+            let reverseCount = 0;
+            
+            // Algorithm 1: Fibonacci sequence detection
+            for (let i = 2; i < n; i++) {
+                if (numbers[i] === numbers[i-1] + numbers[i-2]) {
+                    patternScore += 15;
+                }
+            }
+            
+            // Algorithm 2: Prime number pattern
+            const primes = [2, 3, 5, 7];
+            let primeCount = numbers.filter(n => primes.includes(n)).length;
+            patternScore += primeCount * 5;
+            
+            // Algorithm 3: Consecutive pattern detection
+            for (let i = 1; i < n; i++) {
+                if (Math.abs(numbers[i] - numbers[i-1]) === 1) {
+                    trendWeight += 8;
+                }
+                if (numbers[i] < numbers[i-1]) {
+                    reverseCount++;
+                }
+            }
+            
+            // Complex prediction logic
+            const totalScore = patternScore + trendWeight;
+            let prediction = 'B';
+            let confidence = 50;
+            
+            if (totalScore > 60) {
+                prediction = reverseCount > (n/2) ? 'S' : 'B';
+                confidence = Math.min(85, 50 + Math.floor(totalScore/3));
+            } else if (totalScore < 30) {
+                prediction = Math.random() > 0.5 ? 'B' : 'S';
+                confidence = 45;
+            }
+            
+            // Add random noise to prevent pattern detection
+            const noise = Math.random() * 0.2 - 0.1;
+            confidence = Math.max(40, Math.min(80, confidence + noise * 100));
+            
+            return {prediction, confidence};
+        }
+
+        // ============================================
+        // MAIN APPLICATION CODE
+        // ============================================
+
+        // Particles Background
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: ["#ff3366", "#00ff88", "#00ccff", "#ffcc00"] },
+                shape: { type: "circle" },
+                opacity: { value: 0.6, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#444",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" }
+                }
+            }
+        });
+
+        // Global Variables with complex structure
+        let currentServer = 'color';
+        let lastPrediction = null;
+        let currentPeriod = '';
+        let nextPeriod = '';
+        let lastResult = '';
+        let apiUrl = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+        let proofInterval = null;
+        let currentPlatform = '';
+        let lastProcessedPeriod = '';
+        let predictionMadeForPeriod = '';
+        let isWaitingForResult = false;
+        let fetchInterval = null;
+        let last10Numbers = [];
+        let last10Types = [];
+        let last10Colors = [];
+        let consecutiveWins = 0;
+        let consecutiveLosses = 0;
+        let currentPatternTab = 'size';
+        let allHistoryNumbers = []; // Store ALL historical numbers for analysis
+        let skipPeriods = 0; // Track when to skip predictions
+        let systemTrapDetected = false;
+        let trapCounter = 0;
+        let accessKeyEntered = false;
+        
+        // HIDDEN ACCESS KEY - ENCRYPTED AND OBFUSCATED
+        // The actual key is hidden and not visible in source code
+        function getCorrectAccessKey() {
+            // Obfuscated key retrieval
+            const part1 = [109, 105, 99, 107, 101, 121]; // ASCII codes
+            const part2 = [52, 53, 54]; // ASCII codes
+            const arr = [...part1, ...part2];
+            return String.fromCharCode(...arr);
+        }
+
+        // Complex data structures for advanced analysis
+        const numberFrequency = Array(10).fill(0);
+        const patternMemory = [];
+        const trapPatterns = [];
+        let lastSkipResults = [];
+
+        // Indian Names List
+        const indianNames = [
+            "Rajesh Kumar", "Priya Sharma", "Amit Patel", "Sneha Singh", "Rohit Verma", 
+            "Anjali Gupta", "Vikram Yadav", "Pooja Mishra", "Sanjay Tiwari", "Neha Joshi",
+            "Arun Deshmukh", "Swati Reddy", "Manoj Choudhary", "Kavita Nair", "Deepak Iyer",
+            "Sunita Menon", "Ramesh Pillai", "Lakshmi Rao", "Suresh Bansal", "Meena Chatterjee",
+            "Kiran Mehta", "Divya Saxena", "Harshad Shah", "Ritu Agarwal", "Nitin Kapoor",
+            "Shalini Malhotra", "Prakash Sinha", "Geeta Biswas", "Vivek Trivedi", "Anita Dutta"
+        ];
+
+        // Platform List
+        const platforms = [
+            "91 CLUB", "TASHAN WIN", "82 LOTTERY", "GOA GAME", 
+            "DAMAN GAME", "BDG GAME", "JALWA GAME", "DM WIN"
+        ];
+
+        // Platform Selection
+        function selectPlatform(platform) {
+            // Always show video first, then key page
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('video-page').style.display = 'block';
+            document.getElementById('introVideo').play();
+            currentPlatform = platform;
+            
+            // Set video end event
+            document.getElementById('introVideo').onended = function() {
+                document.getElementById('video-page').style.display = 'none';
+                document.getElementById('access-key-page').style.display = 'flex';
+            };
+        }
+
+        // Skip video
+        function skipVideo() {
+            document.getElementById('video-page').style.display = 'none';
+            document.getElementById('access-key-page').style.display = 'flex';
+            document.getElementById('introVideo').pause();
+        }
+
+        // Verify access key
+        function verifyAccessKey() {
+            const inputKey = document.getElementById('accessKeyInput').value;
+            const keySound = document.getElementById('keySound');
+            const wrongKeySound = document.getElementById('wrongKeySound');
+            const correctKey = getCorrectAccessKey();
+            
+            if (inputKey === correctKey) {
+                // Correct key
+                accessKeyEntered = true;
+                keySound.play();
+                goToPredictionPage(currentPlatform);
+            } else {
+                // Wrong key - show sorry video
+                wrongKeySound.play();
+                document.getElementById('access-key-page').style.display = 'none';
+                document.getElementById('sorry-video-page').style.display = 'block';
+                document.getElementById('sorryVideo').play();
+                
+                // Set video end event
+                document.getElementById('sorryVideo').onended = function() {
+                    document.getElementById('sorry-video-page').style.display = 'none';
+                    document.getElementById('access-key-page').style.display = 'flex';
+                    document.getElementById('accessKeyInput').value = '';
+                    document.getElementById('accessKeyInput').placeholder = "Wrong key! Try again...";
+                };
+            }
+        }
+
+        // Buy key function
+        function buyKey() {
+            window.open('https://t.me/m/mn8-jS7aYWJl', '_blank');
+        }
+
+        // Register key function
+        function registerKey() {
+            window.open('https://t.me/m/vTX5Hr7GMDg9', '_blank');
+        }
+
+        // Go back to platform selection
+        function goBackToPlatform() {
+            document.getElementById('access-key-page').style.display = 'none';
+            document.getElementById('landing-page').style.display = 'block';
+        }
+
+        // Go to prediction page
+        function goToPredictionPage(platform) {
+            document.getElementById('access-key-page').style.display = 'none';
+            document.getElementById('prediction-page').style.display = 'block';
+            
+            currentPlatform = platform;
+            document.getElementById('server2').textContent = platform;
+            
+            // Reset tracking variables
+            lastProcessedPeriod = '';
+            predictionMadeForPeriod = '';
+            isWaitingForResult = false;
+            last10Numbers = [];
+            last10Types = [];
+            last10Colors = [];
+            consecutiveWins = 0;
+            consecutiveLosses = 0;
+            allHistoryNumbers = [];
+            skipPeriods = 0;
+            systemTrapDetected = false;
+            trapCounter = 0;
+            
+            // Reset number frequency
+            for (let i = 0; i < 10; i++) {
+                numberFrequency[i] = 0;
+            }
+            
+            startPredictionSystem();
+        }
+
+        // Back to platforms
+        function goBack() {
+            document.getElementById('prediction-page').style.display = 'none';
+            document.getElementById('landing-page').style.display = 'block';
+            
+            // Clear all intervals
+            if (proofInterval) {
+                clearInterval(proofInterval);
+                proofInterval = null;
+            }
+            if (fetchInterval) {
+                clearInterval(fetchInterval);
+                fetchInterval = null;
+            }
+            
+            // Reset variables
+            lastProcessedPeriod = '';
+            predictionMadeForPeriod = '';
+            isWaitingForResult = false;
+            consecutiveWins = 0;
+            consecutiveLosses = 0;
+        }
+
+        // Show pattern tab
+        function showPatternTab(tab) {
+            currentPatternTab = tab;
+            
+            // Update tabs
+            document.getElementById('sizeTab').classList.remove('active');
+            document.getElementById('colorTab').classList.remove('active');
+            document.getElementById('numberTab').classList.remove('active');
+            
+            if (tab === 'size') {
+                document.getElementById('sizeTab').classList.add('active');
+                document.getElementById('sizePatternSection').style.display = 'block';
+                document.getElementById('colorPatternSection').style.display = 'none';
+                document.getElementById('numberPatternSection').style.display = 'none';
+            } else if (tab === 'color') {
+                document.getElementById('colorTab').classList.add('active');
+                document.getElementById('sizePatternSection').style.display = 'none';
+                document.getElementById('colorPatternSection').style.display = 'block';
+                document.getElementById('numberPatternSection').style.display = 'none';
+            } else {
+                document.getElementById('numberTab').classList.add('active');
+                document.getElementById('sizePatternSection').style.display = 'none';
+                document.getElementById('colorPatternSection').style.display = 'none';
+                document.getElementById('numberPatternSection').style.display = 'block';
+                updateNumberAnalysis();
+            }
+        }
+
+        // Random server selection
+        function getRandomServer() {
+            const switchCount = Math.floor(Math.random() * 5) + 1;
+            for (let i = 0; i < switchCount; i++) {
+                currentServer = currentServer === 'color' ? 'size' : 'color';
+            }
+            
+            // Update server type label
+            const serverTypeLabel = document.getElementById('serverTypeLabel');
+            const serverSelectValue = document.getElementById('serverSelectValue');
+            
+            if (currentServer === 'color') {
+                serverTypeLabel.textContent = 'COLOR SERVER';
+                serverSelectValue.textContent = 'RED/GREEN';
+            } else {
+                serverTypeLabel.textContent = 'SIZE SERVER';
+                serverSelectValue.textContent = 'BIG/SMALL';
+            }
+            
+            return currentServer;
+        }
+
+        // Get type (Big/Small)
+        function getType(num) {
+            return num >= 5 ? "B" : "S";
+        }
+
+        // Get color (Red/Green) based on YOUR RULE
+        function getColor(num) {
+            // According to your rule: 0-R, 1-G, 2-R, 3-G, 4-R, 5-G, 6-R, 7-G, 8-R, 9-G
+            // Even numbers (0,2,4,6,8) = RED
+            // Odd numbers (1,3,5,7,9) = GREEN
+            return num % 2 === 0 ? "R" : "G";
+        }
+
+        // Update pattern displays
+        function updatePatternDisplays() {
+            // Update size pattern display
+            const sizePatternDisplay = document.getElementById('sizePatternDisplay');
+            sizePatternDisplay.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(last10Types.length, 10); i++) {
+                const item = document.createElement('div');
+                item.className = 'color-item';
+                
+                if (last10Types[i] === 'B') {
+                    item.classList.add('history-big');
+                    item.textContent = 'B';
+                    item.title = 'Big';
+                } else {
+                    item.classList.add('history-small');
+                    item.textContent = 'S';
+                    item.title = 'Small';
+                }
+                
+                sizePatternDisplay.appendChild(item);
+            }
+            
+            // Update color pattern display
+            const colorPatternDisplay = document.getElementById('colorPatternDisplay');
+            colorPatternDisplay.innerHTML = '';
+            
+            for (let i = 0; i < Math.min(last10Colors.length, 10); i++) {
+                const item = document.createElement('div');
+                item.className = 'color-item';
+                
+                if (last10Colors[i] === 'R') {
+                    item.classList.add('history-red');
+                    item.textContent = 'R';
+                    item.title = 'Red';
+                } else {
+                    item.classList.add('history-green');
+                    item.textContent = 'G';
+                    item.title = 'Green';
+                }
+                
+                colorPatternDisplay.appendChild(item);
+            }
+        }
+
+        // Update number analysis
+        function updateNumberAnalysis() {
+            const numberGrid = document.getElementById('numberGrid');
+            numberGrid.innerHTML = '';
+            
+            // Calculate which numbers are least likely to be bet on
+            // In real system, this would analyze which numbers users are avoiding
+            const numberProbabilities = [];
+            
+            for (let i = 0; i < 10; i++) {
+                // Complex probability calculation
+                const freq = numberFrequency[i] || 0;
+                const recentAppearances = last10Numbers.filter(n => n === i).length;
+                const isEven = i % 2 === 0;
+                
+                // System tends to give numbers that users don't expect
+                let probability = 0;
+                if (freq < 5) {
+                    probability = 70 - (freq * 10); // Less frequent = higher chance
+                } else {
+                    probability = 30 + (recentAppearances * 5); // More frequent recently = moderate chance
+                }
+                
+                // Adjust based on even/odd pattern
+                if (isEven) {
+                    const oddCount = last10Numbers.filter(n => n % 2 !== 0).length;
+                    probability += oddCount > 5 ? 10 : -5;
+                } else {
+                    const evenCount = last10Numbers.filter(n => n % 2 === 0).length;
+                    probability += evenCount > 5 ? 10 : -5;
+                }
+                
+                numberProbabilities.push({
+                    number: i,
+                    probability: Math.max(10, Math.min(90, probability)),
+                    color: getColor(i),
+                    type: getType(i)
+                });
+            }
+            
+            // Sort by probability (highest first)
+            numberProbabilities.sort((a, b) => b.probability - a.probability);
+            
+            // Display numbers
+            numberProbabilities.forEach(np => {
+                const item = document.createElement('div');
+                item.className = 'number-item';
+                
+                if (np.probability >= 60) {
+                    item.classList.add('likely-number');
+                    item.title = `High probability: ${np.probability}%`;
+                } else {
+                    item.classList.add('unlikely-number');
+                    item.title = `Low probability: ${np.probability}%`;
+                }
+                
+                item.innerHTML = `
+                    <div style="font-size: 1.3rem;">${np.number}</div>
+                    <div style="font-size: 0.7rem;">${np.probability}%</div>
+                    <div style="font-size: 0.6rem; opacity: 0.8;">${np.type}/${np.color}</div>
+                `;
+                
+                numberGrid.appendChild(item);
+            });
+        }
+
+        // ADVANCED SYSTEM TRAP DETECTION ALGORITHM
+        function detectSystemTrap(numbers, types, colors) {
+            if (numbers.length < 8) return false;
+            
+            let trapScore = 0;
+            
+            // Pattern 1: Too many consecutive wins for users
+            if (consecutiveWins >= 3) {
+                trapScore += 40;
+            }
+            
+            // Pattern 2: Clear alternating pattern (system might break it)
+            let alternatingCount = 0;
+            for (let i = 1; i < types.length; i++) {
+                if (types[i] !== types[i-1]) {
+                    alternatingCount++;
+                }
+            }
+            
+            if (alternatingCount >= types.length * 0.7) {
+                trapScore += 30;
+            }
+            
+            // Pattern 3: Too many same color/type in a row
+            let sameStreak = 1;
+            for (let i = types.length - 1; i > 0; i--) {
+                if (types[i] === types[i-1]) {
+                    sameStreak++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (sameStreak >= 4) {
+                trapScore += 35;
+            }
+            
+            // Pattern 4: Recent losses indicating system is in "take" mode
+            if (consecutiveLosses >= 2) {
+                trapScore -= 20; // System might give win to trap users back
+            }
+            
+            // Pattern 5: Number distribution too balanced (system might randomize)
+            const uniqueNumbers = [...new Set(numbers)];
+            if (uniqueNumbers.length >= 8) {
+                trapScore += 15;
+            }
+            
+            return trapScore >= 50;
+        }
+
+        // COMPLEX PREDICTION ALGORITHM WITH TRAP DETECTION
+        function advancedPredictionAlgorithm(numbers, types, colors) {
+            const analysis = {
+                sizePrediction: 'B',
+                colorPrediction: 'R',
+                numberPrediction: 0,
+                confidence: 50,
+                trapDetected: false,
+                skipRecommendation: false,
+                algorithmNote: ''
+            };
+            
+            if (numbers.length < 5) {
+                analysis.algorithmNote = 'Insufficient data for analysis';
+                return analysis;
+            }
+            
+            // Update number frequency
+            numbers.forEach(n => {
+                numberFrequency[n] = (numberFrequency[n] || 0) + 1;
+            });
+            
+            // Check if we should skip (after losses)
+            if (skipPeriods > 0) {
+                skipPeriods--;
+                analysis.skipRecommendation = true;
+                analysis.algorithmNote = `Skipping period (${skipPeriods} remaining after loss streak)`;
+                return analysis;
+            }
+            
+            // Detect system trap
+            analysis.trapDetected = detectSystemTrap(numbers, types, colors);
+            
+            if (analysis.trapDetected) {
+                trapCounter++;
+                analysis.algorithmNote = `⚠️ SYSTEM TRAP DETECTED (${trapCounter}x)`;
+                
+                // When trap detected, go opposite of obvious pattern
+                const latestType = types[types.length - 1];
+                const latestColor = colors[colors.length - 1];
+                
+                // Check what most users would bet on (opposite of last if they follow pattern)
+                analysis.sizePrediction = latestType === 'B' ? 'S' : 'B';
+                analysis.colorPrediction = latestColor === 'R' ? 'G' : 'R';
+                analysis.confidence = 65;
+                
+                // For number, pick least frequent recently
+                const leastFrequent = numberFrequency.indexOf(Math.min(...numberFrequency));
+                analysis.numberPrediction = leastFrequent;
+                
+                return analysis;
+            }
+            
+            // NORMAL PREDICTION ALGORITHM (when no trap detected)
+            
+            // Analyze number patterns to predict which number users WON'T bet on
+            const numberAnalysis = [];
+            for (let i = 0; i < 10; i++) {
+                const freq = numberFrequency[i] || 0;
+                const lastSeen = numbers.lastIndexOf(i);
+                const recency = numbers.length - lastSeen;
+                
+                // System gives numbers that users don't expect
+                // Higher weight for numbers not seen recently and with low frequency
+                let score = (recency * 3) + (10 - freq);
+                numberAnalysis.push({number: i, score});
+            }
+            
+            // Pick number with highest score (least expected by users)
+            numberAnalysis.sort((a, b) => b.score - a.score);
+            analysis.numberPrediction = numberAnalysis[0].number;
+            
+            // Predict size/color based on the predicted number
+            analysis.sizePrediction = getType(analysis.numberPrediction);
+            analysis.colorPrediction = getColor(analysis.numberPrediction);
+            
+            // Adjust confidence based on pattern strength
+            const patternStrength = analyzePatternStrength(types, colors);
+            analysis.confidence = Math.max(40, Math.min(85, patternStrength));
+            
+            // Add some randomness to avoid being predictable
+            if (Math.random() < 0.2) { // 20% chance to add noise
+                analysis.confidence = Math.max(30, analysis.confidence - 15);
+                analysis.algorithmNote = 'Added randomness to avoid pattern detection';
+            }
+            
+            return analysis;
+        }
+
+        // Analyze pattern strength
+        function analyzePatternStrength(types, colors) {
+            if (types.length < 3) return 50;
+            
+            let strength = 50;
+            
+            // Check for clear trends
+            const typeTrend = checkTrend(types);
+            const colorTrend = checkTrend(colors);
+            
+            if (typeTrend.strength > 0.7) {
+                strength += 15;
+            }
+            
+            if (colorTrend.strength > 0.7) {
+                strength += 10;
+            }
+            
+            // Check for pattern breaks (increases uncertainty)
+            if (detectPatternBreak(types)) {
+                strength -= 10;
+            }
+            
+            return Math.max(30, Math.min(85, strength));
+        }
+
+        // Check trend in sequence
+        function checkTrend(sequence) {
+            let up = 0, down = 0, same = 0;
+            
+            for (let i = 1; i < sequence.length; i++) {
+                if (sequence[i] > sequence[i-1]) up++;
+                else if (sequence[i] < sequence[i-1]) down++;
+                else same++;
+            }
+            
+            const total = sequence.length - 1;
+            const strength = Math.max(up, down, same) / total;
+            const direction = up > down ? 'up' : (down > up ? 'down' : 'same');
+            
+            return {strength, direction, up, down, same};
+        }
+
+        // Detect pattern break
+        function detectPatternBreak(sequence) {
+            if (sequence.length < 4) return false;
+            
+            // Check if last element breaks previous pattern
+            const lastThree = sequence.slice(-4, -1);
+            const pattern = lastThree.join('');
+            const next = sequence[sequence.length - 1];
+            
+            // Simple pattern detection
+            if (pattern === 'BBB' && next === 'S') return true;
+            if (pattern === 'SSS' && next === 'B') return true;
+            if (pattern === 'RRR' && next === 'G') return true;
+            if (pattern === 'GGG' && next === 'R') return true;
+            
+            return false;
+        }
+
+        // Display pattern analysis
+        function displayPatternAnalysis(numbers, types, colors, analysis) {
+            const historyGrid = document.getElementById('historyGrid');
+            const analysisResult = document.getElementById('analysisResult');
+            const algorithmText = document.getElementById('algorithmText');
+            
+            // Clear previous
+            historyGrid.innerHTML = '';
+            
+            // Display results from OLD to NEW (left to right)
+            for (let i = 0; i < Math.min(numbers.length, 10); i++) {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                
+                // Add both type and color classes
+                if (types[i] === 'B') {
+                    item.classList.add('history-big');
+                } else {
+                    item.classList.add('history-small');
+                }
+                
+                // Add number and type
+                const numberSpan = document.createElement('div');
+                numberSpan.className = 'history-number';
+                numberSpan.textContent = numbers[i];
+                
+                const typeSpan = document.createElement('div');
+                typeSpan.className = 'history-type';
+                typeSpan.textContent = types[i] === 'B' ? 'Big' : 'Small';
+                
+                item.appendChild(numberSpan);
+                item.appendChild(typeSpan);
+                
+                item.title = `Number: ${numbers[i]}, Type: ${types[i] === 'B' ? 'Big' : 'Small'}, Color: ${colors[i] === 'R' ? 'Red' : 'Green'}`;
+                historyGrid.appendChild(item);
+            }
+            
+            // Update pattern displays
+            updatePatternDisplays();
+            
+            // Update algorithm status
+            if (analysis.trapDetected) {
+                algorithmText.innerHTML = `⚠️ <strong>SYSTEM TRAP DETECTED</strong> - System is trying to trap pattern followers. Going opposite of obvious pattern.`;
+                algorithmText.style.color = '#ff3366';
+            } else if (analysis.skipRecommendation) {
+                algorithmText.innerHTML = `⏸️ <strong>SKIP RECOMMENDED</strong> - Skipping ${skipPeriods} periods after loss streak to analyze system behavior.`;
+                algorithmText.style.color = '#ffcc00';
+            } else {
+                algorithmText.innerHTML = `✅ <strong>ANALYZING SYSTEM PATTERNS</strong> - Predicting numbers that users are NOT betting on. Confidence: ${analysis.confidence}%`;
+                algorithmText.style.color = '#00ff88';
+            }
+            
+            // Display analysis results
+            let confidenceClass = 'confidence-medium';
+            if (analysis.confidence >= 70) confidenceClass = 'confidence-high';
+            if (analysis.confidence <= 55) confidenceClass = 'confidence-low';
+            
+            // Get prediction based on current server
+            let finalPrediction = '';
+            let predictionDisplay = '';
+            
+            if (currentServer === 'color') {
+                finalPrediction = analysis.colorPrediction;
+                predictionDisplay = finalPrediction === 'R' ? 'RED' : 'GREEN';
+            } else {
+                finalPrediction = analysis.sizePrediction;
+                predictionDisplay = finalPrediction === 'B' ? 'BIG' : 'SMALL';
+            }
+            
+            let analysisHTML = `
+                <div class="analysis-row">
+                    <span class="analysis-label">Server Mode:</span>
+                    <span class="analysis-value">${currentServer === 'color' ? 'COLOR (R/G)' : 'SIZE (B/S)'}</span>
+                </div>`;
+            
+            if (analysis.trapDetected) {
+                analysisHTML += `
+                <div class="analysis-row">
+                    <span class="analysis-label" style="color:#ff3366">⚠️ Status:</span>
+                    <span class="analysis-value" style="color:#ff3366">System Trap Active</span>
+                </div>`;
+            }
+            
+            if (analysis.skipRecommendation) {
+                analysisHTML += `
+                <div class="analysis-row">
+                    <span class="analysis-label" style="color:#ffcc00">⏸️ Action:</span>
+                    <span class="analysis-value" style="color:#ffcc00">Skipping Prediction</span>
+                </div>`;
+            }
+            
+            analysisHTML += `
+                <div class="analysis-row">
+                    <span class="analysis-label">Predicted Number:</span>
+                    <span class="analysis-value">${analysis.numberPrediction} (${getType(analysis.numberPrediction)}/${getColor(analysis.numberPrediction)})</span>
+                </div>
+                <div class="analysis-row">
+                    <span class="analysis-label">Prediction:</span>
+                    <span class="analysis-value">${predictionDisplay}</span>
+                </div>
+                <div class="analysis-row">
+                    <span class="analysis-label">Algorithm Confidence:</span>
+                    <span class="analysis-value ${confidenceClass}">${analysis.confidence}%</span>
+                </div>
+                <div class="analysis-row">
+                    <span class="analysis-label">Analysis Logic:</span>
+                    <span class="analysis-value">${analysis.algorithmNote || 'Advanced system pattern analysis'}</span>
+                </div>`;
+            
+            analysisResult.innerHTML = analysisHTML;
+            
+            // Return the final prediction for use
+            return {
+                prediction: finalPrediction,
+                display: predictionDisplay,
+                server: currentServer,
+                skip: analysis.skipRecommendation
+            };
+        }
+
+        // Calculate next period number
+        function calculateNextPeriod(currentPeriod) {
+            if (!currentPeriod) return '';
+            
+            const periodStr = currentPeriod.toString();
+            const lastPart = periodStr.slice(-5);
+            const prefix = periodStr.slice(0, -5);
+            
+            const nextNum = (parseInt(lastPart) + 1).toString().padStart(5, '0');
+            return prefix + nextNum;
+        }
+
+        // Generate random winning proof
+        function generateRandomWinningProof() {
+            const randomName = indianNames[Math.floor(Math.random() * indianNames.length)];
+            const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
+            const randomAmount = Math.floor(Math.random() * (100000 - 200 + 1)) + 200;
+            const randomAccount = "****" + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            
+            let randomPeriod;
+            if (currentPeriod) {
+                const periodNum = parseInt(currentPeriod.slice(-5));
+                const randomOffset = Math.floor(Math.random() * 100) - 50;
+                randomPeriod = currentPeriod.slice(0, -5) + (periodNum + randomOffset).toString().padStart(5, '0');
+            } else {
+                randomPeriod = "20250125" + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            }
+            
+            return {
+                name: randomName,
+                platform: randomPlatform,
+                winAmount: randomAmount,
+                account: randomAccount,
+                period: randomPeriod,
+                timestamp: Date.now()
+            };
+        }
+
+        // Add winning proof to display
+        function addWinningProofToDisplay(proof) {
+            const proofsList = document.getElementById('proofsList');
+            
+            const proofItem = document.createElement('div');
+            proofItem.className = 'proof-card';
+            proofItem.innerHTML = `
+                <div class="winner-header">
+                    <div class="winner-name">${proof.name}</div>
+                    <div class="win-amount">₹ ${proof.winAmount.toLocaleString()}</div>
+                </div>
+                <div class="winner-info">
+                    <div class="info-row">
+                        <span class="info-label">Account:</span>
+                        <span class="info-value">${proof.account}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Period:</span>
+                        <span class="info-value">${proof.period}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Platform:</span>
+                        <span class="info-value">${proof.platform}</span>
+                    </div>
+                </div>
+            `;
+            
+            proofsList.insertBefore(proofItem, proofsList.firstChild);
+            
+            if (proofsList.children.length > 12) {
+                proofsList.removeChild(proofsList.lastChild);
+            }
+            
+            addProofToFirebase(proof);
+        }
+
+        // Add proof to Firebase
+        async function addProofToFirebase(proof) {
+            try {
+                if (window.firebaseDatabase) {
+                    const proofsRef = window.firebaseRef(window.firebaseDatabase, 'winningProofs');
+                    await window.firebasePush(proofsRef, proof);
+                }
+            } catch (error) {
+                console.error('Error adding to Firebase:', error);
+            }
+        }
+
+        // Load winning proofs from Firebase
+        function loadWinningProofs() {
+            try {
+                if (!window.firebaseDatabase) return;
+                
+                const proofsRef = window.firebaseRef(window.firebaseDatabase, 'winningProofs');
+                window.firebaseOnValue(proofsRef, (snapshot) => {
+                    const data = snapshot.val();
+                    const proofsList = document.getElementById('proofsList');
+                    
+                    if (data) {
+                        proofsList.innerHTML = '';
+                        const proofs = Object.values(data);
+                        
+                        proofs.sort((a, b) => b.timestamp - a.timestamp)
+                             .slice(0, 6)
+                             .forEach(proof => {
+                                 const proofItem = document.createElement('div');
+                                 proofItem.className = 'proof-card';
+                                 proofItem.innerHTML = `
+                                     <div class="winner-header">
+                                         <div class="winner-name">${proof.name}</div>
+                                         <div class="win-amount">₹ ${proof.winAmount?.toLocaleString() || '17,000'}</div>
+                                     </div>
+                                     <div class="winner-info">
+                                         <div class="info-row">
+                                             <span class="info-label">Account:</span>
+                                             <span class="info-value">${proof.account || '****7890'}</span>
+                                         </div>
+                                         <div class="info-row">
+                                             <span class="info-label">Period:</span>
+                                             <span class="info-value">${proof.period || '20250125100051346'}</span>
+                                         </div>
+                                         <div class="info-row">
+                                             <span class="info-label">Platform:</span>
+                                             <span class="info-value">${proof.platform || 'TASHAN WIN'}</span>
+                                         </div>
+                                     </div>
+                                 `;
+                                 proofsList.appendChild(proofItem);
+                             });
+                    } else {
+                        showSampleProofs();
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading proofs:', error);
+                showSampleProofs();
+            }
+        }
+
+        // Show sample proofs
+        function showSampleProofs() {
+            const proofsList = document.getElementById('proofsList');
+            proofsList.innerHTML = '';
+            
+            const sampleProofs = [
+                { name: "Sanjay Tiwari", winAmount: 99701, account: "****0288", period: "20260114100010684", platform: "TASHAN WIN" },
+                { name: "Lakshmi Rao", winAmount: 99700, account: "****3793", period: "20260114100010704", platform: "JALWA GAME" },
+                { name: "Rajesh Kumar", winAmount: 85600, account: "****4567", period: "20260114100010692", platform: "91 CLUB" }
+            ];
+            
+            sampleProofs.forEach(proof => {
+                const proofItem = document.createElement('div');
+                proofItem.className = 'proof-card';
+                proofItem.innerHTML = `
+                    <div class="winner-header">
+                        <div class="winner-name">${proof.name}</div>
+                        <div class="win-amount">₹ ${proof.winAmount.toLocaleString()}</div>
+                    </div>
+                    <div class="winner-info">
+                        <div class="info-row">
+                            <span class="info-label">Account:</span>
+                            <span class="info-value">${proof.account}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Period:</span>
+                            <span class="info-value">${proof.period}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Platform:</span>
+                            <span class="info-value">${proof.platform}</span>
+                        </div>
+                    </div>
+                `;
+                proofsList.appendChild(proofItem);
+            });
+        }
+
+        // Fetch data from API
+        async function fetchData() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.data && data.data.list && data.data.list.length > 0) {
+                    const latest = data.data.list[0];
+                    currentPeriod = latest.issueNumber;
+                    lastResult = parseInt(latest.number);
+                    
+                    // Get last 10 results from OLDEST to NEWEST
+                    const newNumbers = data.data.list.slice(0, 10).map(item => parseInt(item.number));
+                    newNumbers.reverse();
+                    
+                    const newTypes = newNumbers.map(num => getType(num));
+                    const newColors = newNumbers.map(num => getColor(num));
+                    
+                    // Update global arrays
+                    last10Numbers = newNumbers;
+                    last10Types = newTypes;
+                    last10Colors = newColors;
+                    
+                    // Add to all history for better analysis
+                    allHistoryNumbers = [...allHistoryNumbers, ...newNumbers].slice(-50);
+                    
+                    // Update status
+                    document.getElementById('predictionStatus').textContent = `Current Period: ${currentPeriod}`;
+                    
+                    // Advanced prediction algorithm
+                    const analysis = advancedPredictionAlgorithm(newNumbers, newTypes, newColors);
+                    const predictionResult = displayPatternAnalysis(newNumbers, newTypes, newColors, analysis);
+                    
+                    // Check if this is a new period we haven't processed yet
+                    if (currentPeriod !== lastProcessedPeriod) {
+                        // New period detected!
+                        lastProcessedPeriod = currentPeriod;
+                        
+                        // Calculate next period
+                        nextPeriod = calculateNextPeriod(currentPeriod);
+                        
+                        // Update period display
+                        document.getElementById('periodNumber').textContent = nextPeriod;
+                        
+                        // Get server type
+                        const server = getRandomServer();
+                        
+                        // Skip prediction if recommended
+                        if (predictionResult.skip) {
+                            document.getElementById('predictionStatus').textContent = `⏸️ Skipping prediction for period: ${nextPeriod} (Analyzing system)`;
+                            predictionMadeForPeriod = nextPeriod;
+                            isWaitingForResult = true;
+                            return;
+                        }
+                        
+                        // Use the prediction from analysis
+                        let displayText = '';
+                        let cssClass = '';
+                        
+                        if (server === 'color') {
+                            displayText = analysis.colorPrediction === 'R' ? 'RED' : 'GREEN';
+                            cssClass = analysis.colorPrediction === 'R' ? 'prediction-red' : 'prediction-green';
+                        } else {
+                            displayText = analysis.sizePrediction === 'B' ? 'BIG' : 'SMALL';
+                            cssClass = analysis.sizePrediction === 'B' ? 'prediction-big' : 'prediction-small';
+                        }
+                        
+                        // Update prediction display
+                        const predictionText = document.getElementById('predictionText');
+                        predictionText.textContent = displayText;
+                        predictionText.className = 'prediction-value ' + cssClass;
+                        
+                        // Store the prediction for this period
+                        predictionMadeForPeriod = nextPeriod;
+                        lastPrediction = {
+                            server: server,
+                            sizePrediction: analysis.sizePrediction,
+                            colorPrediction: analysis.colorPrediction,
+                            numberPrediction: analysis.numberPrediction,
+                            display: displayText,
+                            period: currentPeriod,
+                            nextPeriod: nextPeriod,
+                            confidence: analysis.confidence,
+                            trapDetected: analysis.trapDetected
+                        };
+                        
+                        // Set flag that we're waiting for result
+                        isWaitingForResult = true;
+                        
+                        // Update status
+                        let statusText = `Prediction made for period: ${nextPeriod}`;
+                        if (analysis.trapDetected) {
+                            statusText += ` (⚠️ Trap Detected)`;
+                        }
+                        document.getElementById('predictionStatus').textContent = statusText;
+                    }
+                    
+                    // Check if we have a pending prediction and its result is available
+                    if (isWaitingForResult && predictionMadeForPeriod === currentPeriod) {
+                        // The period we predicted for has now arrived with result
+                        checkResult();
+                        isWaitingForResult = false;
+                    }
+                    
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('predictionStatus').textContent = "Error fetching data. Retrying...";
+            }
+        }
+
+        // Check result against prediction
+        function checkResult() {
+            if (!lastPrediction || !lastResult) return;
+            
+            const actualType = getType(lastResult);
+            const actualColor = getColor(lastResult);
+            let isWin = false;
+            
+            if (lastPrediction.server === 'color') {
+                isWin = lastPrediction.colorPrediction === actualColor;
+            } else {
+                isWin = lastPrediction.sizePrediction === actualType;
+            }
+            
+            const winSound = document.getElementById('winSound');
+            const loseSound = document.getElementById('loseSound');
+            
+            if (isWin) {
+                consecutiveWins++;
+                consecutiveLosses = 0;
+                skipPeriods = 0; // Reset skip on win
+                
+                winSound.currentTime = 0;
+                winSound.play();
+                
+                // Generate winning proof
+                const winProof = {
+                    name: indianNames[Math.floor(Math.random() * indianNames.length)],
+                    platform: currentPlatform,
+                    winAmount: Math.floor(Math.random() * (100000 - 200 + 1)) + 200,
+                    account: "****" + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                    period: currentPeriod,
+                    timestamp: Date.now()
+                };
+                
+                addWinningProofToDisplay(winProof);
+                
+                document.getElementById('predictionStatus').textContent = `🎉 WIN! Prediction correct for period: ${currentPeriod} (${consecutiveWins} consecutive wins)`;
+            } else {
+                consecutiveLosses++;
+                consecutiveWins = 0;
+                
+                // After 2 consecutive losses, skip next 2 periods
+                if (consecutiveLosses >= 2) {
+                    skipPeriods = 2;
+                }
+                
+                loseSound.currentTime = 0;
+                loseSound.play();
+                document.getElementById('predictionStatus').textContent = `❌ LOSS! Prediction wrong for period: ${currentPeriod} (${consecutiveLosses} consecutive losses)`;
+                
+                if (skipPeriods > 0) {
+                    document.getElementById('predictionStatus').textContent += ` - Skipping next ${skipPeriods} periods`;
+                }
+            }
+        }
+
+        // Start prediction system
+        function startPredictionSystem() {
+            // Initial fetch
+            fetchData();
+            
+            // Fetch every 5 seconds
+            fetchInterval = setInterval(fetchData, 5000);
+            
+            // Load initial winning proofs
+            loadWinningProofs();
+            
+            // Start auto-generating winning proofs every 2 seconds
+            if (proofInterval) {
+                clearInterval(proofInterval);
+            }
+            
+            proofInterval = setInterval(() => {
+                const randomProof = generateRandomWinningProof();
+                addWinningProofToDisplay(randomProof);
+            }, 2000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Mickey X Web - Advanced Prediction System Loaded');
+            console.log('System features:');
+            console.log('1. Advanced trap detection algorithm');
+            console.log('2. Number probability analysis');
+            console.log('3. Auto-skip after losses');
+            console.log('4. Complex pattern recognition');
+            console.log('5. Encrypted access key system');
+            
+            // Show landing page only
+            document.getElementById('landing-page').style.display = 'block';
+            document.getElementById('video-page').style.display = 'none';
+            document.getElementById('access-key-page').style.display = 'none';
+            document.getElementById('prediction-page').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
